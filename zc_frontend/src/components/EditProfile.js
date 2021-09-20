@@ -12,7 +12,7 @@ import Loader from 'react-loader-spinner'
 import toast, { Toaster } from 'react-hot-toast'
 
 const EditProfile = () => {
-  const imageRef = useRef(null)
+  // const imageRef = useRef(null)
   const avatarRef = useRef(null)
   const { user, orgId, userProfileImage, setUserProfileImage } =
     useContext(ProfileContext)
@@ -33,26 +33,33 @@ const EditProfile = () => {
     loading: false
   })
 
+  const onImageUpload = () => {
+    console.log(imageUrl)
+    setUserProfileImage(imageUrl)
+    authAxios
+      .patch(`/organizations/${orgId}/members/${user._id}/photo`, {
+        image_url: imageUrl
+      })
+      .then(res => {
+        console.log(res)
+        toast.success('User Profile Picture Updated Successful', {
+          position: 'bottom-center'
+        })
+      })
+      .catch(err => {
+        toast.error(err?.message, {
+          position: 'bottom-center'
+        })
+      })
+  }
 
- const onImageUpload = () => {
-   console.log(imageUrl);
-   setUserProfileImage(imageUrl)
-  authAxios
-        .patch(`/organizations/${orgId}/members/${user._id}/photo`, {
-          image_url: imageUrl
-        })
-        .then(res => {
-          console.log(res)
-           toast.success('User Profile Picture Updated Successful', {
-          position: 'bottom-center'
-        })
-        })
-        .catch(err => {
-           toast.error(err?.message, {
-          position: 'bottom-center'
-        })
-        })
- }
+  let validateImageUrl = true
+
+  if (imageUrl.length === 0) {
+    validateImageUrl = true
+  } else {
+    validateImageUrl = false
+  }
 
   // const handleImageChange = event => {
   //   if (imageRef.current.files[0]) {
@@ -65,18 +72,13 @@ const EditProfile = () => {
 
   //     const imgUrl = fileReader.readAsDataURL(imageRef.current.files[0])
 
-    
   //   }
   // }
 
   // useEffect(() => {
- 
+
   // onImageUpload()
   // },[imageUrl])
-
-
-
-
 
   // This will handle the profile form submission
 
@@ -300,13 +302,28 @@ const EditProfile = () => {
                     </div>
                   </div>
 
-                    <input type='text' placeholder='Image Url'  className={styles.imageUpload} value={imageUrl}  onChange={(e) => {setImageUrl(e.target.value)}   }  />
-
+                  <input
+                    type="text"
+                    placeholder="Image Url"
+                    className={styles.imageUpload}
+                    value={imageUrl}
+                    onChange={e => {
+                      setImageUrl(e.target.value)
+                    }}
+                  />
 
                   <div className={styles.profileFunc}>
                     <div className={styles.subContainer}>
                       <div className={styles.mxAuto}>
-                        <button onClick={onImageUpload} className={styles.save}>
+                        <button
+                          type="button"
+                          onClick={onImageUpload}
+                          disabled={validateImageUrl}
+                          className={styles.save}
+                          style={{
+                            cursor: validateImageUrl ? 'not-allowed' : 'pointer'
+                          }}
+                        >
                           Upload an Image
                         </button>
                         {/* <input
