@@ -1,6 +1,7 @@
 .container {
   width: 20.5rem;
-  height: calc(100vh - 5.0625em);
+ margin-top : 4.25em;
+  height: calc(100vh - 4.25em);
   background: #fff;
   position: relative;
   z-index: 10000;
@@ -16,7 +17,7 @@
 
 .header {
   width: 100%;
-  height: 56px;
+  height: 50px;
   z-index: 40;
 
   top: 0;
@@ -50,11 +51,13 @@
 }
 
 .userAvatar {
-  display: flex;
-  align-self: center;
-  margin: 0 auto;
-  width: 90%;
-  height: 90%;
+   display: flex;
+  align-self: center; 
+  margin: 0 auto; 
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius : 10px
 }
 
 .userDetails {
@@ -123,7 +126,7 @@
 }
 
 .buttonGroups button {
-  background: #2f80ed;
+  background: #00b87c;
   color: #fff;
   display: flex;
   align-items: center;
@@ -138,8 +141,8 @@
 
 .buttonGroups button:hover {
   background: none;
-  border: 1px solid #2f80ed;
-  color: #2f80ed;
+  border: 1px solid #00b87c;
+  color: #00b87c;
 }
 
 .buttonGroups button svg {
@@ -152,7 +155,7 @@
 }
 
 .buttonGroups button:hover svg path {
-  stroke: #2f80ed;
+  stroke: #00b87c;
 }
 
 .moreInfo {
@@ -257,19 +260,21 @@
 
 @media (max-width: 768px) {
   .container {
+    
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     width: 100vw;
     height: 100vh;
+    margin-top : 5px;
     overflow-y: auto;
     border-radius: 8px 8px 0px 0px;
   }
 
-  .header {
+  /* .header {
     display: none;
-  }
+  } */
 
   .content {
     padding: 10px;
@@ -292,16 +297,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1.5px solid #2f80ed;
+    border: 1.5px solid #00b87c;
     background: none;
     font-size: 1rem;
     font-weight: 700;
-    color: #2f80ed;
+    color: #00b87c;
     border-radius: 4px;
   }
 
   .buttonGroupsMobile button:hover {
-    background: #2f80ed;
+    background: #00b87c;
     color: #fff;
   }
 
@@ -361,5 +366,13 @@
   }
   .userDetails {
     display: none;
+  }
+  .userAvatar {
+    display: flex;
+    align-self: center;
+    margin: 0 auto;
+    width: 80%;
+    height: 25rem;
+    /* object-fit: contain; */
   }
 }

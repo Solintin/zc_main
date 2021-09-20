@@ -1,4 +1,5 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
+import { authAxios } from '../util/Api'
 
 // react icons
 import { FaCircle, FaChevronRight } from 'react-icons/fa'
@@ -16,17 +17,86 @@ import Downloads from './Downloads'
 import PauseNotification from './PauseNotification'
 
 const TopbarModal = ({ members }) => {
-  const { toggleModalState, toggleProfileState } = useContext(ProfileContext)
+  const {
+    userProfileImage,
+    toggleModalState,
+    toggleProfileState,
+    user,
+    orgId
+  } = useContext(ProfileContext)
 
   const state = useContext(TopbarContext)
   const [showModal] = state.show
-  const [active, setActive] = state.presence
+  const [presence, setPresence] = state.presence
   const [showStatus] = state.status
   const [showMembersModal] = state.modal
-  const { onEmojiClick, openStatus, closeStatus, modalRef, closeMembersModal } =
-    state
+  const {
+    onEmojiClick,
+    openModal,
+    openStatus,
+    closeStatus,
+    modalRef,
+    closeMembersModal
+  } = state
   const [modal, setModal] = useState('')
   const [pause, setPause] = useState(false)
+
+  const onSetPresence = () => {
+    setPresence(() => {
+      if (presence === 'true') {
+        return 'false'
+      } else {
+        return 'true'
+      }
+    })
+  }
+
+  let userPresence = null
+  let toggleStaus = null
+
+  switch (presence) {
+    case 'true':
+      userPresence = 'Set yourself as away'
+      toggleStaus = (
+        <div className={styles.online}>
+          <FaCircle className={styles.circle} />
+          <p className={styles.active}>Active</p>
+        </div>
+      )
+      break
+    case 'false':
+      userPresence = 'Set yourself as active'
+      toggleStaus = (
+        <div className={styles.online}>
+          <FaCircle className={styles.circlegrey} />
+          <p className={styles.away}>Away</p>
+        </div>
+      )
+      break
+    default:
+  }
+
+  const toggleUserPresence = () => {
+    onSetPresence()
+    authAxios
+      .post(`/organizations/${orgId}/members/${user._id}/presence`, presence)
+      .then(res => {
+        console.log('response1 =>', res)
+        return authAxios.get(`/organizations/${orgId}/members/${user._id}/`)
+      })
+      .then(res => {
+        console.log('response2', res.data.data.presence)
+      })
+      .catch(err => {
+        console.log(err?.response?.data)
+      })
+  }
+
+  useEffect(() => {
+    setPresence(user.presence)
+ 
+   
+  }, [user])
 
   return (
     <>
@@ -69,12 +139,13 @@ const TopbarModal = ({ members }) => {
         <section className={styles.topbarModal}>
           <div className={styles.sectionOne}>
             <div className={styles.oneLeft}>
-              <img src="/profilepic.png" alt="profile" />
+              <img src={userProfileImage} alt="profile-pic" />
             </div>
 
             <div className={styles.oneRight}>
               <h4>Praise.A</h4>
-              {active ? (
+              {toggleStaus}
+              {/* {presence ? (
                 <div className={styles.online}>
                   <FaCircle className={styles.circle} />
                   <p className={styles.active}>Active</p>
@@ -84,7 +155,7 @@ const TopbarModal = ({ members }) => {
                   <FaCircle className={styles.circlegrey} />
                   <p className={styles.away}>Away</p>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -97,8 +168,13 @@ const TopbarModal = ({ members }) => {
 
           <div className={styles.sectionThree}>
             <p onClick={openStatus}>Set a status</p>
-            <p onClick={() => setActive(!active)}>
-              {active ? 'Set yourself as away' : 'Set yourself as active'}
+            <p
+              onClick={() => {
+                toggleUserPresence()
+              }}
+            >
+              {userPresence}
+              {/* {presence ? 'Set yourself as active' : 'Set yourself as away'} */}
             </p>
             <div className={styles.pause}>
               <p onClick={() => setPause(!pause)}>Pause Notifications</p>
@@ -118,7 +194,14 @@ const TopbarModal = ({ members }) => {
             >
               Edit profile
             </p>
-            <p onClick={toggleProfileState}>View profile</p>
+            <p
+              onClick={() => {
+                toggleProfileState()
+                openModal()
+              }}
+            >
+              View profile
+            </p>
             <p
               onClick={() => {
                 setModal('preference')

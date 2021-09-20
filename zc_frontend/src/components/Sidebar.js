@@ -2,6 +2,8 @@ import axios from 'axios'
 import { useContext, Fragment, useState, useEffect } from 'react'
 import useSWR from 'swr'
 import { URLContext } from '../context/Url'
+import { ProfileContext } from '../context/ProfileModal'
+import { TopbarContext } from '../context/Topbar'
 import { PluginContext } from '../context/Plugins'
 import styles from '../styles/Sidebar.module.css'
 import Dropdown from './Dropdown'
@@ -19,6 +21,7 @@ import draftIcon from './verified-components/assets/icons/draft-icon.svg'
 import filesIcon from './verified-components/assets/icons/files-icon.svg'
 import pluginIcon from './verified-components/assets/icons/plugin-icon.svg'
 import addIcon from './verified-components/assets/icons/add-icon.svg'
+import { authAxios } from '../util/Api'
 
 const fetcher = url => fetch(url).then(res => res.json())
 
@@ -30,6 +33,7 @@ export const Sidebar = () => {
   // console.log(organization)
 
   const { setUrl } = useContext(URLContext)
+  const { setUser, user, setOrgId, setUserProfileImage } = useContext(ProfileContext)
   const [show, setShow] = useState(false)
   const { plugins, setPlugins } = useContext(PluginContext)
 
@@ -42,6 +46,7 @@ export const Sidebar = () => {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   // const [error, setError] = useState('')
+  const [organizations, setOrganizations] = useState([])
 
   // Sort room function
 
@@ -103,6 +108,45 @@ export const Sidebar = () => {
       })
     })()
   }, [])
+
+  // const getOrganizations = async () => {
+  //   await
+  // }
+  // console.log('Organization', getOrganizations())
+
+  useEffect(() => {
+    const userdef = JSON.parse(sessionStorage.getItem('user'))
+    async function getOrganizations() {
+      await authAxios
+        .get(`/users/${userdef.email}/organizations`)
+        .then(response => {
+          setOrganizations(response.data.data)
+          setOrgId(response.data.data[0]?.id)
+          authAxios
+            .get(`/organizations/${response.data.data[0]?.id}/members`)
+            .then(response => {
+              setUser(
+                response.data.data.find(
+                  member => member.email === userdef.email
+                )
+              )
+              return response.data.data.find(
+                member => member.email === userdef.email
+              )
+            })
+            .catch(err => {
+              console.log(err.response.data)
+            })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  
+    setUserProfileImage(user.image_url)
+
+    getOrganizations()
+  }, [setOrgId, user, setUser])
 
   useEffect(() => {
     axios
@@ -202,13 +246,14 @@ export const Sidebar = () => {
   return (
     <div className={styles.container}>
       <div className={styles.orgInfo}>
-        <div className={styles.orgName}>
-          <p>HNGi8</p>
-          <img
-            src="/shapekeyboardarrowdown.svg"
-            alt="Organisation settings button"
-          />
-        </div>
+        <select className={styles.orgName}>
+          {organizations.map(org => (
+            <option key={org.id} value={org.id}>
+              {org.name}
+            </option>
+            // console.log(org.name)
+          ))}
+        </select>
         <Overlay isOpen={showDialog} onDismiss={close}>
           <Content aria-label="room-list">
             <CloseButton className="close-button" onClick={close}>

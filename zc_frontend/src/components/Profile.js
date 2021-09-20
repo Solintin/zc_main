@@ -12,7 +12,7 @@ import Preferences from './Preferences'
 import { Dropdown } from './ProfileMore'
 
 const Profile = () => {
-  const { toggleModalState, showProfile, toggleProfileState } =
+  const {userProfileImage, toggleModalState, showProfile, toggleProfileState } =
     useContext(ProfileContext)
   const state = useContext(TopbarContext)
   const [dropdown, setDropdown] = useState(false)
@@ -52,7 +52,7 @@ const Profile = () => {
         </svg>
       </div>
       <div className={styles.content}>
-        <img className={styles.userAvatar} src={avatar} alt="avatar" />
+        <img className={styles.userAvatar}   src={userProfileImage} alt="avatar" />
         <div className={styles.userDetails}>
           <h3>
             Praise Aderinwale <span>3</span>
@@ -65,9 +65,11 @@ const Profile = () => {
           <button>Message</button>
           <button
             onClick={() => {
-              toggleProfileState()
+              toggleModalState();
               setModal(() => 'edit profile')
-              toggleModalState()
+              toggleProfileState()
+            
+             
             }}
           >
             Edit Profile
